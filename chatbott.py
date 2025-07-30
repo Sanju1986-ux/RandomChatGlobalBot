@@ -7,20 +7,22 @@ from telegram.ext import (
     ContextTypes, filters
 )
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+# Load environment variable
+BOT_TOKEN = os.environ.get("8412898131:AAHtVdEFLTEmX3wZwsUoakWOfj3lcJ7jmm4")
 GROUP_LINK = "https://t.me/randomchat_global"
 
-# FastAPI app to keep Render Web Service alive
+# FastAPI web server (to keep bot alive on Render)
 app = FastAPI()
 
 @app.get("/")
 async def root():
-    return {"status": "Bot is running"}
+    return {"status": "Bot is running ✅"}
 
-# Telegram Bot setup
+# Chat queues
 queue = []
 active_chats = {}
 
+# Reply keyboard
 keyboard = ReplyKeyboardMarkup(
     [
         [KeyboardButton("🟢 Start Chat")],
@@ -29,22 +31,16 @@ keyboard = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
+# /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        await update.message.reply_text(
-    f"👋 Welcome {update.effective_user.first_name}!\n\n"
-    f"👉 Join our group if you'd like (optional):\n{GROUP_LINK}\n\n"
-    "Then tap 🟢 Start Chat to meet a random stranger!",
-    reply_markup=keyboard
-)
-
-
-
+    message = (
+        f"👋 Welcome {update.effective_user.first_name}!\n\n"
         f"👉 Join our group if you'd like (optional):\n{GROUP_LINK}\n\n"
-        "Then tap 🟢 Start Chat to meet a random stranger!",
-        reply_markup=keyboard
+        "Then tap 🟢 Start Chat to meet a random stranger!"
     )
+    await update.message.reply_text(message, reply_markup=keyboard)
 
+# Start new chat
 async def start_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
@@ -62,10 +58,12 @@ async def start_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         queue.append(user_id)
         await update.message.reply_text("⏳ Waiting for a stranger to connect...")
 
+# Next chat
 async def next_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await end_chat(update, context)
     await start_chat(update, context)
 
+# End chat
 async def end_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     if user_id in active_chats:
@@ -79,6 +77,7 @@ async def end_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("⚠️ You are not in a chat.")
 
+# Forward user messages
 async def forward_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     if user_id in active_chats:
@@ -87,7 +86,7 @@ async def forward_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("🟡 You're not in a chat. Press 🟢 Start Chat.")
 
-# Function to start Telegram bot in background
+# Launch bot with polling
 async def run_bot():
     app_bot = ApplicationBuilder().token(BOT_TOKEN).build()
     app_bot.add_handler(CommandHandler("start", start))
@@ -99,5 +98,5 @@ async def run_bot():
     print("🤖 Bot is running...")
     await app_bot.run_polling()
 
-# Start bot in background
+# Start the bot in the background (Render)
 asyncio.create_task(run_bot())
