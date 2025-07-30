@@ -39,7 +39,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 )
 
 
-"
+
         f"👉 Join our group if you'd like (optional):\n{GROUP_LINK}\n\n"
         "Then tap 🟢 Start Chat to meet a random stranger!",
         reply_markup=keyboard
