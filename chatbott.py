@@ -31,7 +31,13 @@ keyboard = ReplyKeyboardMarkup(
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        f"👋 Welcome {update.effective_user.first_name}!
+        await update.message.reply_text(
+    f"👋 Welcome {update.effective_user.first_name}!\n\n"
+    f"👉 Join our group if you'd like (optional):\n{GROUP_LINK}\n\n"
+    "Then tap 🟢 Start Chat to meet a random stranger!",
+    reply_markup=keyboard
+)
+
 
 "
         f"👉 Join our group if you'd like (optional):\n{GROUP_LINK}\n\n"
